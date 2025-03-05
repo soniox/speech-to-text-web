@@ -1,0 +1,60 @@
+{
+  "name": "@soniox/speech-to-text-web",
+  "version": "1.0.0",
+  "description": "Javascript client library for Soniox Speech-to-Text websocket API",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "format": "prettier --check --ignore-path .prettierignore .",
+    "format:fix": "prettier --write --ignore-path .prettierignore .",
+    "typecheck": "tsc --noEmit",
+    "prepare": "npm run build && husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soniox/speech-to-text-web.git"
+  },
+  "author": {
+    "name": "Soniox Inc."
+  },
+  "keywords": [
+    "soniox",
+    "speech-to-text",
+    "speech-recognition",
+    "ai",
+    "speech",
+    "transcription",
+    "tts",
+    "voice",
+    "voice-recognition",
+    "web-voice"
+  ],
+  "license": "MIT",
+  "main": "./dist/speech-to-text-web.umd.cjs",
+  "module": "./dist/speech-to-text-web.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "eslint-config-prettier": "^10.0.1",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.4.1",
+    "prettier": "^3.4.2",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5",
+    "vite-plugin-dts": "^4.5.0"
+  },
+  "lint-staged": {
+    "!(examples/**/*)*.{ts,js}": [
+      "prettier --write"
+    ],
+    "!(examples/**/*)*.ts": [
+      "tsc --noEmit"
+    ]
+  }
+}
