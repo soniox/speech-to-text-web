@@ -1,18 +1,12 @@
 export interface SpeechToTextAPIRequest {
   api_key: string;
-
   model: string;
-
-  // TODO: are these all optional?
   audio_format?: string;
   sample_rate?: number;
   num_channels?: number;
-
   language_hints?: string[];
-  enable_speaker_tags?: boolean;
-  enable_language_tags?: boolean;
-  enable_acoustic_tags?: boolean;
   context?: string;
+  enable_speaker_diarization?: boolean;
 }
 
 export interface Token {
@@ -20,6 +14,9 @@ export interface Token {
   start_ms: number;
   end_ms: number;
   confidence: number;
+  is_final: boolean;
+  speaker?: string;
+  language_code?: string;
 }
 
 export interface SpeechToTextAPIResponse {

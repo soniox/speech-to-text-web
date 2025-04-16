@@ -14,13 +14,13 @@ git clone https://github.com/soniox/speech-to-text-web.git
 
 ```bash
 cd speech-to-text-web/examples/vanilla-js
-yarn install
+npm install
 ```
 
 3. Run the example:
 
 ```bash
-yarn start
+npm run start
 ```
 
 4. Open your browser and navigate to `http://localhost:5173`.

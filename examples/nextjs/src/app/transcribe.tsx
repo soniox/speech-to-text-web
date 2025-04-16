@@ -1,16 +1,22 @@
 'use client';
 
 import { Button } from '@/components/button';
-import { isActiveState, RecorderState, RecordTranscribe } from '@soniox/speech-to-text-web';
+import { isActiveState, RecorderState, RecordTranscribe, Token } from '@soniox/speech-to-text-web';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export default function TranscribeMicrophone() {
-  const { state, text, startTranscription, stopTranscription } = useTranscribe();
+  const { state, finalTokens, nonFinalTokens, startTranscription, stopTranscription } = useTranscribe();
 
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Show current transcription */}
-      <div className="rounded-lg border border-primary px-4 py-2 min-h-32 w-full">{text}</div>
+      <div className="rounded-lg border border-primary px-4 py-2 min-h-32 w-full">
+        {[...finalTokens, ...nonFinalTokens].map((token, idx) => {
+          return (
+            <span key={idx} style={{color: token.is_final ? "black" : "blue"}}>{token.text}</span>
+          )
+        })}
+      </div>
 
       {state === 'Error' ? <div className="text-red-500">Error occurred</div> : null}
 
@@ -49,11 +55,12 @@ function useTranscribe() {
 
   // On every state change, local state is also updated to render the latest state to the user
   const [state, setState] = useState<RecorderState>('Init');
-  // Transcribed text
-  const [text, setText] = useState<string>('');
+  const [finalTokens, setFinalTokens] = useState<Token[]>([]);
+  const [nonFinalTokens, setNonFinalTokens] = useState<Token[]>([]);
 
   const startTranscription = useCallback(async () => {
-    setText('');
+    setFinalTokens([]);
+    setNonFinalTokens([])
 
     // Start the transcription.
     recordTranscribe.current?.start({
@@ -73,10 +80,22 @@ function useTranscribe() {
       onStateChange({ newState }) {
         setState(newState);
       },
-      // Add new words to the transcription
-      // (we keep the final words and remove the non-final words)
+      // handle final/non-final tokens here
+      // keep previous final, append new final and always override all non-final
       onPartialResult(result) {
-        setText((text) => text + result.text);
+        const newFinalTokens: Token[] = []
+        const newNonFinalTokens: Token[] = [];
+
+        for (const token of result.tokens) {
+          if (token.is_final) {
+            newFinalTokens.push(token);
+          } else {
+            newNonFinalTokens.push(token);
+          }
+        }
+
+        setFinalTokens(previousTokens => [...previousTokens, ...newFinalTokens]);
+        setNonFinalTokens(newNonFinalTokens);
       },
     });
   }, []);
@@ -96,6 +115,7 @@ function useTranscribe() {
     startTranscription,
     stopTranscription,
     state,
-    text,
+    finalTokens,
+    nonFinalTokens
   };
 }

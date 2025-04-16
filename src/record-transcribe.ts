@@ -59,16 +59,16 @@ type AudioOptions = {
    * Example: `['en', 'fr', 'de']`
    */
   languageHints?: string[];
-  /**
-   * Whether to enable speaker tags in the transcription.
-   *
-   * Examples of speaker tags: `spk:1`, `spk:3`, `spk:4`.
-   */
-  enableSpeakerTags?: boolean;
+
   /**
    * Context string to pass to the API.
    */
   context?: string;
+
+  /**
+   * When true, speakers are identified and separated in the transcription output.
+   */
+  enableSpeakerDiarization?: boolean;
 
   /**
    * Audio constraints, by default `true`. Can be used to set the `echoCancellation` and `noiseSuppression` properties of the
@@ -313,14 +313,11 @@ export class RecordTranscribe {
 
     const request: SpeechToTextAPIRequest = {
       api_key: apiKey,
-
       model: opts.model,
-
       audio_format: 'auto',
-
-      context: opts.context,
-      enable_speaker_tags: opts.enableSpeakerTags,
       language_hints: opts.languageHints,
+      context: opts.context,
+      enable_speaker_diarization: opts.enableSpeakerDiarization,
     };
 
     // Send initial request

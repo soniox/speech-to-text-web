@@ -7,7 +7,7 @@ This example shows how to use Soniox Speech-to-Text Web in a Next.js application
 First install dependencies:
 
 ```bash
-yarn install
+npm install
 ```
 
 Prepare your `.env` file:
@@ -25,7 +25,7 @@ SONIOX_API_KEY=<SONIOX_API_KEY>
 Then run the development server:
 
 ```bash
-yarn dev
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

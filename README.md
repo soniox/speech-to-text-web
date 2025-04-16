@@ -1,6 +1,6 @@
 # Soniox Speech-to-Text Web
 
-Soniox Speech-to-Text Web is a Javascript client library for **real-time low-latency** automatic speech-to-text using [Soniox Speech-to-Text Service](https://soniox.com/docs/speech-to-text).
+Soniox Speech-to-Text Web is a Javascript client library for **real-time low-latency** automatic speech-to-text using [Soniox Speech-to-Text Service](https://soniox.com/docs/speech-to-text/get-started).
 
 ## Installation
 
@@ -22,7 +22,7 @@ And start transcription:
 
 ```ts
 recordTranscribe.start({
-  model: 'stt-stt-rt-preview',
+  model: 'stt-rt-preview',
 
   onError: (status, message) => {
     console.error(status, message);

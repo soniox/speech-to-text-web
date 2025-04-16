@@ -1,27 +1,30 @@
 import { RecordTranscribe } from '@soniox/speech-to-text-web';
 
-const apiKey = 'SONIOX_API_KEY';
+const apiKey = '<SONIOX_API_KEY|TEMP_API_KEY>';
 
-var recordTranscribe = new RecordTranscribe({
+const recordTranscribe = new RecordTranscribe({
   apiKey: apiKey,
 });
 
 document.querySelector('#app').innerHTML = `
   <div>
-    <button id="start-button">Start</button>
-    <button id="stop-button">Stop</button>
-    <button id="cancel-button">Cancel</button>
-    <br>
-    <span id="transcript"></span>
-    <br>
+      <button id="startButton">Start</button>
+      <button id="stopButton">Stop</button>
+      <button id="cancelButton">Cancel</button>
+    <br />
+    <div class="output">
+      <span id="finalTokens"></span>
+      <span id="nonFinalTokens" style="color: blue"></span>
+    </div>
   </div>
 `;
 
-const transcript = document.getElementById('transcript');
+const finalTokens = document.getElementById('finalTokens');
+const nonFinalTokens = document.getElementById('nonFinalTokens');
 
-document.getElementById('start-button').onclick = () => {
+document.getElementById('startButton').onclick = () => {
   recordTranscribe?.cancel();
-  transcript.textContent = '';
+  finalTokens.textContent = '';
 
   recordTranscribe.start({
     model: 'stt-rt-preview',
@@ -30,7 +33,16 @@ document.getElementById('start-button').onclick = () => {
       console.log('Transcribe started');
     },
     onPartialResult: (result) => {
-      transcript.textContent += result.text;
+      let newNonFinalTokens = "";
+
+      for (const token of result.tokens) {
+        if (token.is_final) {
+          finalTokens.textContent += token.text;
+        } else {
+          newNonFinalTokens += token.text;
+        }
+      }
+      nonFinalTokens.textContent = newNonFinalTokens
     },
     onFinished: () => {
       console.log('Transcribe finished');
@@ -41,9 +53,10 @@ document.getElementById('start-button').onclick = () => {
   });
 };
 
-document.getElementById('stop-button').onclick = function () {
+document.getElementById('stopButton').onclick = function () {
   recordTranscribe?.stop();
 };
-document.getElementById('cancel-button').onclick = function () {
+
+document.getElementById('cancelButton').onclick = function () {
   recordTranscribe?.cancel();
 };
