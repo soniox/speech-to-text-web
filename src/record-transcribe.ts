@@ -71,10 +71,40 @@ type AudioOptions = {
   enableSpeakerDiarization?: boolean;
 
   /**
+   * The format of the streamed audio (e.g., "auto", "s16le").
+   */
+  audioFormat?: string;
+
+  /**
+   * Required for raw PCM formats.
+   */
+  sampleRate?: number;
+
+  /**
+   * Required for raw PCM formats. Typically 1 for mono audio, 2 for stereo.
+   */
+  numChannels?: number;
+
+  /**
+   * Maximum delay (in milliseconds) between a spoken word and its finalization.
+   */
+  maxNonFinalTokensDurationMs?: number;
+
+  /**
+   * A client-defined identifier to track this stream. Can be any string. If not provided, it will be auto-generated.
+   */
+  clientReferenceId?: string;
+
+  /**
    * Audio constraints, by default `true`. Can be used to set the `echoCancellation` and `noiseSuppression` properties of the
    * MediaTrackConstraints object. See https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints for more details.
    */
   audioConstraints?: MediaTrackConstraints;
+
+  /**
+   * A dictionary object of MediaRecorder options: https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder/MediaRecorder
+   */
+  mediaRecorderOptions?: Record<string, any>;
 
   /**
    * If you don't want to transcribe audio from microphone, you can pass a MediaStream to the `stream` option.
@@ -96,16 +126,11 @@ export class RecordTranscribe {
   static isSupported = Boolean('WebSocket' in window && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
   _state: RecorderState = 'Init';
-
   _options: RecordTranscribeOptions;
   _audioOptions: AudioOptions | null;
-
   _websocket: WebSocket | null;
-
   _mediaRecorder: MediaRecorder | null;
-
-  // Queued data (before websocket is opened)
-  _queuedMessages: Blob[] = [];
+  _queuedMessages: Blob[] = []; // Queued data (before websocket is opened)
 
   /**
    * RecordTranscribe connects to the Soniox Speech-to-Text API for real-time speech-to-text transcription.
@@ -201,7 +226,10 @@ export class RecordTranscribe {
     }
 
     // New media stream
-    this._mediaRecorder = new MediaRecorder(stream);
+    this._mediaRecorder = new MediaRecorder(
+      stream,
+      audioOptions.mediaRecorderOptions ? audioOptions.mediaRecorderOptions : {},
+    );
 
     // Start collecting data
     this._queuedMessages = [];
@@ -314,10 +342,14 @@ export class RecordTranscribe {
     const request: SpeechToTextAPIRequest = {
       api_key: apiKey,
       model: opts.model,
-      audio_format: 'auto',
+      audio_format: opts.audioFormat ? opts.audioFormat : 'auto',
+      sample_rate: opts.sampleRate,
+      num_channels: opts.numChannels,
       language_hints: opts.languageHints,
       context: opts.context,
       enable_speaker_diarization: opts.enableSpeakerDiarization,
+      max_non_final_tokens_duration_ms: opts.maxNonFinalTokensDurationMs,
+      client_reference_id: opts.clientReferenceId,
     };
 
     // Send initial request
