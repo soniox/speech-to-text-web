@@ -13,8 +13,10 @@ export default function TranscribeMicrophone() {
       <div className="rounded-lg border border-primary px-4 py-2 min-h-32 w-full">
         {[...finalTokens, ...nonFinalTokens].map((token, idx) => {
           return (
-            <span key={idx} style={{color: token.is_final ? "black" : "blue"}}>{token.text}</span>
-          )
+            <span key={idx} style={{ color: token.is_final ? 'black' : 'blue' }}>
+              {token.text}
+            </span>
+          );
         })}
       </div>
 
@@ -60,7 +62,7 @@ function useTranscribe() {
 
   const startTranscription = useCallback(async () => {
     setFinalTokens([]);
-    setNonFinalTokens([])
+    setNonFinalTokens([]);
 
     // Start the transcription.
     recordTranscribe.current?.start({
@@ -83,7 +85,7 @@ function useTranscribe() {
       // handle final/non-final tokens here
       // keep previous final, append new final and always override all non-final
       onPartialResult(result) {
-        const newFinalTokens: Token[] = []
+        const newFinalTokens: Token[] = [];
         const newNonFinalTokens: Token[] = [];
 
         for (const token of result.tokens) {
@@ -94,7 +96,7 @@ function useTranscribe() {
           }
         }
 
-        setFinalTokens(previousTokens => [...previousTokens, ...newFinalTokens]);
+        setFinalTokens((previousTokens) => [...previousTokens, ...newFinalTokens]);
         setNonFinalTokens(newNonFinalTokens);
       },
     });
@@ -116,6 +118,6 @@ function useTranscribe() {
     stopTranscription,
     state,
     finalTokens,
-    nonFinalTokens
+    nonFinalTokens,
   };
 }

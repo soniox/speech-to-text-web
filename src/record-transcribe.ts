@@ -118,6 +118,14 @@ const getDefaultRecordTranscribeOptions = (): RecordTranscribeOptions => ({
   bufferQueueSize: defaultBufferQueueSize,
 });
 
+const defaultAudioConstraints: MediaTrackConstraints = {
+  echoCancellation: false,
+  noiseSuppression: false,
+  autoGainControl: false,
+  channelCount: 1,
+  sampleRate: 44100,
+};
+
 // Global variable to track whether a RecordTranscribe is active (only one
 // instance may be active at a time)
 let recordTranscribeActive = false;
@@ -213,7 +221,7 @@ export class RecordTranscribe {
       try {
         // Request microphone access and get stream
         stream = await navigator.mediaDevices.getUserMedia({
-          audio: this._audioOptions.audioConstraints ?? true,
+          audio: this._audioOptions.audioConstraints ? this._audioOptions.audioConstraints : defaultAudioConstraints,
         });
       } catch (e) {
         this._onError('get_user_media_failed', e?.toString());
