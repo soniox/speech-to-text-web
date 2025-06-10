@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ErrorStatus, RecordingAlreadyStartedError } from './errors';
 import { isActiveState, isInactiveState, isWebSocketState, RecorderState } from './state';
-import { SpeechToTextAPIRequest, SpeechToTextAPIResponse } from './types';
+import { SpeechToTextAPIRequest, SpeechToTextAPIResponse, TranslationConfig } from './types';
 
 const defaultWebsocketUri = 'wss://stt-rt.soniox.com/transcribe-websocket';
 
 const defaultBufferQueueSize = 1000;
 
 const recorderTimeSliceMs = 120;
+
+const finalizeMessage = '{ "type": "finalize" }';
 
 type ApiKeyGetter = () => Promise<string>;
 
@@ -69,6 +71,17 @@ type AudioOptions = {
    * When true, speakers are identified and separated in the transcription output.
    */
   enableSpeakerDiarization?: boolean;
+
+  /** When true, language identification is enabled. */
+  enableLanguageIdentification?: boolean;
+
+  /** When true, endpoint detection is enabled. */
+  enableEndpointDetection?: boolean;
+
+  /**
+   * Translation configuration. Can be one-way or two-way translation.
+   */
+  translation?: TranslationConfig;
 
   /**
    * The format of the streamed audio (e.g., "auto", "s16le").
@@ -138,7 +151,7 @@ export class RecordTranscribe {
   _audioOptions: AudioOptions | null;
   _websocket: WebSocket | null;
   _mediaRecorder: MediaRecorder | null;
-  _queuedMessages: Blob[] = []; // Queued data (before websocket is opened)
+  _queuedMessages: (Blob | string)[] = []; // Queued data (before websocket is opened)
 
   /**
    * RecordTranscribe connects to the Soniox Speech-to-Text API for real-time speech-to-text transcription.
@@ -288,6 +301,22 @@ export class RecordTranscribe {
     }
   };
 
+  /**
+   * Trigger finalize. This will finalize all non-final tokens.
+   */
+  finalize = (): void => {
+    if (this._state == 'RequestingMedia' || this._state == 'OpeningWebSocket') {
+      // Still waiting for websocket to open, queue the event
+      if (this._queuedMessages.length < (this._options.bufferQueueSize ?? defaultBufferQueueSize)) {
+        this._queuedMessages.push(finalizeMessage);
+      } else {
+        this._onError('queue_limit_exceeded', 'Queue size exceeded before websocket connection was established.');
+      }
+    } else if (this._state == 'Running' || this._state == 'FinishingProcessing') {
+      this._websocket?.send(finalizeMessage);
+    }
+  };
+
   // Media recorder events
 
   _onMediaRecorderData = async (event: BlobEvent): Promise<void> => {
@@ -356,6 +385,9 @@ export class RecordTranscribe {
       language_hints: opts.languageHints,
       context: opts.context,
       enable_speaker_diarization: opts.enableSpeakerDiarization,
+      enable_language_identification: opts.enableLanguageIdentification,
+      enable_endpoint_detection: opts.enableEndpointDetection,
+      translation: opts.translation,
       max_non_final_tokens_duration_ms: opts.maxNonFinalTokensDurationMs,
       client_reference_id: opts.clientReferenceId,
     };

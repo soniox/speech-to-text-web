@@ -13,6 +13,6 @@
     "vite-plugin-commonjs": "^0.10.4"
   },
   "dependencies": {
-    "@soniox/speech-to-text-web": "^1.1.0"
+    "@soniox/speech-to-text-web": "^1.1.2"
   }
 }
