@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ErrorStatus, RecordingAlreadyStartedError } from './errors';
+import { ErrorStatus } from './errors';
 import { isActiveState, isInactiveState, isWebSocketState, RecorderState } from './state';
 import { SpeechToTextAPIRequest, SpeechToTextAPIResponse, TranslationConfig } from './types';
 
@@ -139,10 +139,6 @@ const defaultAudioConstraints: MediaTrackConstraints = {
   sampleRate: 44100,
 };
 
-// Global variable to track whether a RecordTranscribe is active (only one
-// instance may be active at a time)
-let recordTranscribeActive = false;
-
 export class RecordTranscribe {
   static isSupported = Boolean('WebSocket' in window && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
@@ -213,13 +209,8 @@ export class RecordTranscribe {
     if (isActiveState(this._state)) {
       throw new Error('RecordTranscribe is already active');
     }
-    if (recordTranscribeActive) {
-      throw new RecordingAlreadyStartedError();
-    }
 
     this._audioOptions = { ...audioOptions };
-
-    recordTranscribeActive = true;
 
     let stream: MediaStream | undefined = undefined;
 
@@ -297,7 +288,6 @@ export class RecordTranscribe {
     if (!isInactiveState(this._state)) {
       this._closeResources();
       this._setState('Canceled');
-      recordTranscribeActive = false;
     }
   };
 
@@ -433,7 +423,6 @@ export class RecordTranscribe {
 
   _onError = (status: ErrorStatus, message: string | undefined, errorCode: number | undefined = undefined): void => {
     this._setState('Error');
-    recordTranscribeActive = false;
     this._closeResources();
 
     if (this._hasCallback('onError')) {
@@ -474,7 +463,6 @@ export class RecordTranscribe {
 
   _handleFinished(): void {
     this._closeResources();
-    recordTranscribeActive = false;
     this._setState('Finished');
     this._callback('onFinished');
   }
