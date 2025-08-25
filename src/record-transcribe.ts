@@ -99,11 +99,6 @@ type AudioOptions = {
   numChannels?: number;
 
   /**
-   * Maximum delay (in milliseconds) between a spoken word and its finalization.
-   */
-  maxNonFinalTokensDurationMs?: number;
-
-  /**
    * A client-defined identifier to track this stream. Can be any string. If not provided, it will be auto-generated.
    */
   clientReferenceId?: string;
@@ -378,7 +373,6 @@ export class RecordTranscribe {
       enable_language_identification: opts.enableLanguageIdentification,
       enable_endpoint_detection: opts.enableEndpointDetection,
       translation: opts.translation,
-      max_non_final_tokens_duration_ms: opts.maxNonFinalTokensDurationMs,
       client_reference_id: opts.clientReferenceId,
     };
 

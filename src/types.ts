@@ -8,7 +8,6 @@ export interface SpeechToTextAPIRequest {
   context?: string;
   enable_speaker_diarization?: boolean;
   enable_language_identification?: boolean;
-  max_non_final_tokens_duration_ms?: number;
   enable_endpoint_detection?: boolean;
   client_reference_id?: string;
   translation?: TranslationConfig;
