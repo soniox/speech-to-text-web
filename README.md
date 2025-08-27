@@ -2,14 +2,14 @@
 
 ## Overview
 
-Soniox speech-to-text-web is the official JavaScript/TypeScript SDK for using the Soniox Real-Time API directly in the browser.
+Soniox [speech-to-text-web](https://github.com/soniox/speech-to-text-web) is the official JavaScript/TypeScript SDK for using the Soniox [Real-time API](https://soniox.com/docs/stt/api-reference/websocket-api) directly in the browser.
 It lets you:
 
 - Capture audio from the user’s microphone
 - Stream audio to Soniox in real time
 - Receive transcription and translation results instantly
 
-Enable advanced features such as language identification, speaker diarization, context, endpoint detection, and more.
+Enable advanced features such as [language identification](https://soniox.com/docs/stt/concepts/language-identification), [speaker diarization](https://soniox.com/docs/stt/concepts/speaker-diarization), [context](https://soniox.com/docs/stt/concepts/context), [endpoint detection](https://soniox.com/docs/stt/rt/endpoint-detection), and more.
 
 👉 Use cases: live captions, multilingual meetings, dictation tools, accessibility overlays, customer support dashboards, education apps.
 
@@ -30,7 +30,7 @@ or use via CDN:
 
 ## Quickstart
 
-Use `SonioxClient` to start transcription:
+Use `SonioxClient` to start session:
 
 ```ts
 const sonioxClient = new SonioxClient({
@@ -40,29 +40,23 @@ const sonioxClient = new SonioxClient({
 
 sonioxClient.start({
   // Select the model to use.
-  //  See: soniox.com/docs/stt/models
   model: 'stt-rt-preview',
 
   // Set language hints when possible to significantly improve accuracy.
-  // See: soniox.com/docs/stt/concepts/language-hints
   languageHints: ['en', 'es'],
 
   // Context is a string that can include words, phrases, or sentences to improve the
   // recognition of rare or specific terms.
-  // See: soniox.com/docs/stt/concepts/context
   context: 'Celebrex, Zyrtec, Xanax, Prilosec, Amoxicillin',
 
   // Enable speaker diarization. Each token will include a "speaker" field.
-  // See: soniox.com/docs/stt/concepts/speaker-diarization
   enableSpeakerDiarization: true,
 
   // Enable language identification. Each token will include a "language" field.
-  // See: soniox.com/docs/stt/concepts/language-identification
   enableLanguageIdentification: true,
 
   // Use endpoint detection to detect when a speaker has finished talking.
   // It finalizes all non-final tokens right away, minimizing latency.
-  // See: soniox.com/docs/stt/rt/endpoint-detection
   enableEndpointDetection: true,
 
   // Callbacks when the transcription starts, finishes, or encounters an error.
@@ -76,7 +70,7 @@ sonioxClient.start({
 });
 ```
 
-The `SonioxClient` object transcribes audio from the user's microphone or a custom audio stream. It returns results by invoking the `onPartialResult` callback with transcription and translation data, depending on the configuration.
+The `SonioxClient` object processes audio from the user's microphone or a custom audio stream. It returns results by invoking the `onPartialResult` callback with transcription and translation data, depending on the configuration.
 
 Stop or cancel transcription:
 
@@ -88,16 +82,16 @@ sonioxClient.cancel();
 
 ### Translation
 
-To enable translation, you can add a `TranslationConfig` object to the parameters of the `start` method.
+To enable [real-time translation](https://soniox.com/docs/stt/rt/real-time-translation), you can add a `TranslationConfig` object to the parameters of the `start` method.
 
 ```ts
-/// One-way translation: translate all spoken languages into a single target language.
+// One-way translation: translate all spoken languages into a single target language.
 translation: {
   type: 'one_way',
   target_language: 'en',
 }
 
-/// Two-way translation: translate back and forth between two specified languages.
+// Two-way translation: translate back and forth between two specified languages.
 translation: {
   type: 'two_way',
   language_a: 'en',
@@ -107,9 +101,9 @@ translation: {
 
 ### `stop()` vs `cancel()`
 
-The key difference is that `stop()` gracefully waits for the server to process all buffered audio and send back final results. In contrast, `cancel()` terminates the transcription immediately without waiting.
+The key difference is that `stop()` gracefully waits for the server to process all buffered audio and send back final results. In contrast, `cancel()` terminates the session immediately without waiting.
 
-For example, when a user clicks a "Stop Recording" button, you should call `stop()`. If you need to discard the transcription immediately (e.g., when a component unmounts in a web framework), call `cancel()`.
+For example, when a user clicks a "Stop Recording" button, you should call `stop()`. If you need to discard the session immediately (e.g., when a component unmounts in a web framework), call `cancel()`.
 
 ### Buffering and temporary API keys
 
@@ -130,7 +124,7 @@ const sonioxClient = new SonioxClient({
 });
 ```
 
-Until this function resolves and returns an API key, audio data is buffered in memory. When the temporary API key is fetched, the buffered audio data will be sent to the server and the transcription will start.
+Until this function resolves and returns an API key, audio data is buffered in memory. When the temporary API key is fetched, the buffered audio data will be sent to the server and the processing will start.
 
 For a full example with temporary API key generation, check the [NextJS Example](https://github.com/soniox/speech-to-text-web/tree/master/examples/nextjs).
 
