@@ -17,8 +17,6 @@ export type TranslationConfig =
   | {
       type: 'one_way';
       target_language: string;
-      source_languages: string[];
-      exclude_source_languages?: string[];
     }
   | {
       type: 'two_way';

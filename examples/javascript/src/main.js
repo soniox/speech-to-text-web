@@ -1,8 +1,8 @@
-import { RecordTranscribe } from '@soniox/speech-to-text-web';
+import { SonioxClient } from '@soniox/speech-to-text-web';
 
 const apiKey = '<SONIOX_API_KEY|TEMP_API_KEY>';
 
-const recordTranscribe = new RecordTranscribe({
+const sonioxClient = new SonioxClient({
   apiKey: apiKey,
 });
 
@@ -23,17 +23,17 @@ const finalTokens = document.getElementById('finalTokens');
 const nonFinalTokens = document.getElementById('nonFinalTokens');
 
 document.getElementById('startButton').onclick = () => {
-  recordTranscribe?.cancel();
+  sonioxClient?.cancel();
   finalTokens.textContent = '';
 
-  recordTranscribe.start({
+  sonioxClient.start({
     model: 'stt-rt-preview',
 
     onStarted: () => {
       console.log('Transcribe started');
     },
     onPartialResult: (result) => {
-      let newNonFinalTokens = "";
+      let newNonFinalTokens = '';
 
       for (const token of result.tokens) {
         if (token.is_final) {
@@ -42,7 +42,7 @@ document.getElementById('startButton').onclick = () => {
           newNonFinalTokens += token.text;
         }
       }
-      nonFinalTokens.textContent = newNonFinalTokens
+      nonFinalTokens.textContent = newNonFinalTokens;
     },
     onFinished: () => {
       console.log('Transcribe finished');
@@ -54,9 +54,9 @@ document.getElementById('startButton').onclick = () => {
 };
 
 document.getElementById('stopButton').onclick = function () {
-  recordTranscribe?.stop();
+  sonioxClient?.stop();
 };
 
 document.getElementById('cancelButton').onclick = function () {
-  recordTranscribe?.cancel();
+  sonioxClient?.cancel();
 };

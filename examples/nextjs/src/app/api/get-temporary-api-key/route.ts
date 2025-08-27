@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 // You don't want to expose the API key to the client, so we generate a temporary one.
-// Temporary API keys are then used to initialize the RecordTranscribe instance on the client.
+// Temporary API keys are then used to initialize the SonioxClient instance on the client.
 export async function POST() {
   if (!process.env.SONIOX_API_KEY) {
     return NextResponse.json({ error: 'SONIOX_API_KEY is not set' }, { status: 400 });

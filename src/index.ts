@@ -1,4 +1,4 @@
 export * from './errors';
-export * from './record-transcribe';
+export * from './soniox-client';
 export * from './state';
 export * from './types';

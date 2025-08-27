@@ -28,7 +28,7 @@ type Callbacks = {
   onError?: (status: ErrorStatus, message: string, errorCode: number | undefined) => void;
 };
 
-type RecordTranscribeOptions = {
+type SonioxClientOptions = {
   /**
    * WebSocket URI. If not provided, the default URI will be used.
    */
@@ -104,13 +104,13 @@ type AudioOptions = {
   clientReferenceId?: string;
 
   /**
-   * Audio constraints, by default `true`. Can be used to set the `echoCancellation` and `noiseSuppression` properties of the
-   * MediaTrackConstraints object. See https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints for more details.
+   * Can be used to set the `echoCancellation` and `noiseSuppression` properties of the MediaTrackConstraints object.
+   * See https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints for more details.
    */
   audioConstraints?: MediaTrackConstraints;
 
   /**
-   * A dictionary object of MediaRecorder options: https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder/MediaRecorder
+   * MediaRecorder options: https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder/MediaRecorder
    */
   mediaRecorderOptions?: Record<string, any>;
 
@@ -121,7 +121,7 @@ type AudioOptions = {
   stream?: MediaStream;
 } & Callbacks;
 
-const getDefaultRecordTranscribeOptions = (): RecordTranscribeOptions => ({
+const getDefaultSonioxClientOptions = (): SonioxClientOptions => ({
   apiKey: '',
   bufferQueueSize: defaultBufferQueueSize,
 });
@@ -134,36 +134,36 @@ const defaultAudioConstraints: MediaTrackConstraints = {
   sampleRate: 44100,
 };
 
-export class RecordTranscribe {
+export class SonioxClient {
   static isSupported = Boolean('WebSocket' in window && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
   _state: RecorderState = 'Init';
-  _options: RecordTranscribeOptions;
+  _options: SonioxClientOptions;
   _audioOptions: AudioOptions | null;
   _websocket: WebSocket | null;
   _mediaRecorder: MediaRecorder | null;
   _queuedMessages: (Blob | string)[] = []; // Queued data (before websocket is opened)
 
   /**
-   * RecordTranscribe connects to the Soniox Speech-to-Text API for real-time speech-to-text transcription.
+   * SonioxClient connects to the Soniox Speech-to-Text API for real-time speech-to-text transcription and translation.
    * It provides a simple API for starting and stopping the transcription, as well as handling the transcription results.
    *
    * @example
-   * const recordTranscribe = new RecordTranscribe({
+   * const sonioxClient = new SonioxClient({
    *   apiKey: '<SONIOX_API_KEY>',
    *   onPartialResult: (result) => {
    *     console.log('partial result', result.text);
    *   },
    * });
-   * recordTranscribe.start();
+   * sonioxClient.start();
    */
-  constructor(options?: RecordTranscribeOptions) {
-    if (!RecordTranscribe.isSupported) {
+  constructor(options?: SonioxClientOptions) {
+    if (!SonioxClient.isSupported) {
       throw 'Soniox Speech-to-Text is not supported on this browser.';
     }
 
     this._options = {
-      ...getDefaultRecordTranscribeOptions(),
+      ...getDefaultSonioxClientOptions(),
       ...options,
     };
 
@@ -202,7 +202,7 @@ export class RecordTranscribe {
    */
   start = async (audioOptions: AudioOptions): Promise<void> => {
     if (isActiveState(this._state)) {
-      throw new Error('RecordTranscribe is already active');
+      throw new Error('SonioxClient is already active');
     }
 
     this._audioOptions = { ...audioOptions };
@@ -422,7 +422,7 @@ export class RecordTranscribe {
     if (this._hasCallback('onError')) {
       this._callback('onError', status, message ?? 'Unknown error', errorCode);
     } else {
-      throw new Error(`RecordTranscribe error: ${status}: ${message ?? 'Unknown error'}`);
+      throw new Error(`SonioxClient error: ${status}: ${message ?? 'Unknown error'}`);
     }
   };
 
@@ -461,3 +461,9 @@ export class RecordTranscribe {
     this._callback('onFinished');
   }
 }
+
+/**
+ * @deprecated Use SonioxClient instead.
+ *
+ */
+export const RecordTranscribe = SonioxClient;
