@@ -7,7 +7,8 @@ export async function POST() {
     return NextResponse.json({ error: 'SONIOX_API_KEY is not set' }, { status: 400 });
   }
 
-  const response = await fetch(`${process.env.SONIOX_API_HOST}/v1/auth/temporary-api-key`, {
+  const host = process.env.SONIOX_API_HOST || 'https://api.soniox.com';
+  const response = await fetch(`${host}/v1/auth/temporary-api-key`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
