@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ErrorStatus } from './errors';
 import { isActiveState, isInactiveState, isWebSocketState, RecorderState } from './state';
-import { SpeechToTextAPIRequest, SpeechToTextAPIResponse, TranslationConfig } from './types';
+import { Context, SpeechToTextAPIRequest, SpeechToTextAPIResponse, TranslationConfig } from './types';
 
 const defaultWebsocketUri = 'wss://stt-rt.soniox.com/transcribe-websocket';
 
@@ -65,7 +65,7 @@ type AudioOptions = {
   /**
    * Context string to pass to the API.
    */
-  context?: string;
+  context?: Context;
 
   /**
    * When true, speakers are identified and separated in the transcription output.

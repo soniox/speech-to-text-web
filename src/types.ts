@@ -5,13 +5,24 @@ export interface SpeechToTextAPIRequest {
   sample_rate?: number;
   num_channels?: number;
   language_hints?: string[];
-  context?: string;
+  context?: Context;
   enable_speaker_diarization?: boolean;
   enable_language_identification?: boolean;
   enable_endpoint_detection?: boolean;
   client_reference_id?: string;
   translation?: TranslationConfig;
 }
+
+export type Context =
+  // Context is an object for model v3 and higher.
+  | {
+      general?: { key: string; value: string }[];
+      text?: string;
+      terms?: string[];
+      translation_terms?: { source: string; target: string }[];
+    }
+  // Context is a string for older model versions.
+  | string;
 
 export type TranslationConfig =
   | {

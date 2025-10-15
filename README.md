@@ -47,7 +47,13 @@ sonioxClient.start({
 
   // Context is a string that can include words, phrases, or sentences to improve the
   // recognition of rare or specific terms.
-  context: 'Celebrex, Zyrtec, Xanax, Prilosec, Amoxicillin',
+  context: {
+    general: [
+      { key: 'domain', value: 'Healthcare' },
+      { key: 'topic', value: 'Diabetes management consultation' },
+    ],
+    terms: ['Celebrex', 'Zyrtec', 'Xanax', 'Prilosec', 'Amoxicillin Clavulanate Potassium'],
+  },
 
   // Enable speaker diarization. Each token will include a "speaker" field.
   enableSpeakerDiarization: true,
@@ -261,9 +267,18 @@ sonioxClient.start({
   numChannels: 1,
   sampleRate: 16000,
 
-
   languageHints: ['en', 'es'],
-  context: 'Celebrex, Zyrtec, Xanax, Prilosec, Amoxicillin',
+
+  // Improve recognition of rare or specific terms with context.
+  // https://soniox.com/docs/stt/concepts/context
+  context: {
+    general: [
+        { key: 'domain', value: 'Healthcare' },
+        { key: 'topic', value: 'Diabetes management consultation' },
+      ],
+      terms: ['Celebrex', 'Zyrtec', 'Xanax', 'Prilosec', 'Amoxicillin Clavulanate Potassium'],
+  },
+
   enableSpeakerDiarization: true,
   enableLanguageIdentification: true,
   enableEndpointDetection: true,
