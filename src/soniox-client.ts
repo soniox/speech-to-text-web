@@ -11,6 +11,8 @@ const recorderTimeSliceMs = 120;
 
 const finalizeMessage = '{ "type": "finalize" }';
 
+const keepAliveMessage = '{ "type": "keepalive" }';
+
 type ApiKeyGetter = () => Promise<string>;
 
 type Callbacks = {
@@ -46,6 +48,13 @@ type SonioxClientOptions = {
    * the user has a slow connection)
    */
   bufferQueueSize?: number;
+
+  /**
+   * If true, sends a keepalive message every 15 seconds to maintain the connection during periods of silence.
+   * This prevents the WebSocket from timing out when no audio is being sent.
+   * Default: false.
+   */
+  keepAlive?: boolean;
 } & Callbacks;
 
 type AudioOptions = {
@@ -143,6 +152,7 @@ export class SonioxClient {
   _websocket: WebSocket | null;
   _mediaRecorder: MediaRecorder | null;
   _queuedMessages: (Blob | string)[] = []; // Queued data (before websocket is opened)
+  _keepAliveInterval: ReturnType<typeof setInterval> | null = null;
 
   /**
    * SonioxClient connects to the Soniox Speech-to-Text API for real-time speech-to-text transcription and translation.
@@ -387,6 +397,15 @@ export class SonioxClient {
 
     this._setState('Running');
     this._callback('onStarted');
+
+    // Start keepalive interval if enabled
+    if (this._options.keepAlive) {
+      this._keepAliveInterval = setInterval(() => {
+        if (this._state === 'Running' || this._state === 'FinishingProcessing') {
+          this._websocket?.send(keepAliveMessage);
+        }
+      }, 15000); // Send keepalive every 15 seconds
+    }
   };
 
   _onWebSocketError = (_event: Event): void => {
@@ -442,6 +461,12 @@ export class SonioxClient {
 
   _closeResources = (): void => {
     this._queuedMessages = [];
+
+    // Clear keepalive interval
+    if (this._keepAliveInterval != null) {
+      clearInterval(this._keepAliveInterval);
+      this._keepAliveInterval = null;
+    }
 
     // Close websocket
     if (this._websocket != null) {
