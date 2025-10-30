@@ -55,6 +55,12 @@ type SonioxClientOptions = {
    * Default: false.
    */
   keepAlive?: boolean;
+
+  /**
+   * Interval in milliseconds for sending keepalive messages when keepAlive is enabled.
+   * Default: 5000 (5 seconds).
+   */
+  keepAliveInterval?: number;
 } & Callbacks;
 
 type AudioOptions = {
@@ -400,11 +406,12 @@ export class SonioxClient {
 
     // Start keepalive interval if enabled
     if (this._options.keepAlive) {
+      const interval = this._options.keepAliveInterval ?? 5000;
       this._keepAliveInterval = setInterval(() => {
         if (this._state === 'Running' || this._state === 'FinishingProcessing') {
           this._websocket?.send(keepAliveMessage);
         }
-      }, 15000); // Send keepalive every 15 seconds
+      }, interval);
     }
   };
 
