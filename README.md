@@ -196,6 +196,13 @@ new SonioxClient({
   // Maximum number of audio chunks to buffer in memory before the WebSocket connection is established.
   bufferQueueSize: 1000,
 
+  // If true, sends a keepalive message to maintain the connection during periods of silence.
+  keepAlive: false,
+
+  // Interval in milliseconds for sending keepalive messages when keepAlive is enabled.
+  // Recommended: 5000-10000 (5-10 seconds). Default: 5000.
+  keepAliveInterval: 5000,
+
   // Callbacks on state changes, partial results and errors.
   onStarted: () => {
     console.log('transcription started');
@@ -222,6 +229,25 @@ Soniox API key or an async function that returns the API key (see [Buffering and
 ##### `bufferQueueSize`
 
 Maximum number of audio chunks to buffer in memory before the WebSocket connection is established. If this limit is exceeded, an error will be thrown.
+
+##### `keepAlive`
+
+When set to `true`, automatically sends a keepalive message (`{"type": "keepalive"}`) at regular intervals during active sessions. This prevents the WebSocket connection from timing out during periods of silence (e.g., when using client-side voice activity detection, during pauses in speech, or when temporarily pausing audio streaming).
+
+**Default:** `false`
+
+**When to use:** Enable this option if:
+- You're using client-side VAD and only stream audio during speech
+- You have periods where no audio is sent but want to preserve the session context (speaker labels, language tracking, prompt)
+- You want to prevent connection timeouts during extended silences
+
+**Note**: You are charged for the full stream duration, not just the audio processed.
+
+##### `keepAliveInterval`
+
+Interval in milliseconds for sending keepalive messages when `keepAlive` is enabled. We recommend sending keepalive messages every 5-10 seconds.
+
+**Default:** `5000` (5 seconds)
 
 ##### `onStarted()`
 
